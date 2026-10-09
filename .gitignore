@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+.DS_Store
+*_chart.pdf
+*_true_size.pdf
+*_chart.png
+*_preview.png
+*_colors.csv
+!docs/assets/*

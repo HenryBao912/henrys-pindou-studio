@@ -1,0 +1,433 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Henry's Pindou Studio - 给田田田的拼豆图纸</title>
+<meta name="description" content="Turn a photo into a 拼豆 fuse-bead pattern on your own computer. Free, private, and it works offline.">
+<meta property="og:title" content="Henry's Pindou Studio - 给田田田的拼豆图纸">
+<meta property="og:description" content="Turn a photo into a 拼豆 fuse-bead pattern on your own computer. Free, private, and it works offline.">
+<meta property="og:image" content="assets/hero-beads.jpg">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%23C53674'/%3E%3Ccircle cx='16' cy='16' r='5' fill='white'/%3E%3C/svg%3E">
+<style>
+  @font-face {
+    font-family: "Nunito";
+    src: url("assets/fonts/nunito-latin.woff2") format("woff2");
+    font-weight: 200 1000;
+    font-display: swap;
+  }
+  :root {
+    /* every color here is a real MARD bead */
+    --ink: #1E334E;        /* C12 */
+    --raspberry: #C53674;  /* E7 */
+    --blue: #0F52BD;       /* C8 */
+    --sun: #F7EC5C;        /* A4 */
+    --blush: #FDDBE9;      /* E8 */
+    --muted: #51627A;
+    --peg: #D6DEE8;
+    --line: #E3E8EF;
+    --paper: #FFFFFF;
+    --cjk: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", "Noto Sans CJK SC", "Source Han Sans SC", sans-serif;
+    --sans: "Nunito", var(--cjk), system-ui, -apple-system, "Segoe UI", sans-serif;
+    --wrap: 1120px;
+    color-scheme: light;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    font-family: var(--sans);
+    font-size: 18px;
+    line-height: 1.6;
+    font-weight: 450;
+    color: var(--ink);
+    background: var(--paper);
+  }
+  img { max-width: 100%; height: auto; display: block; }
+  a { color: var(--blue); text-underline-offset: 3px; }
+  a:hover { text-decoration-thickness: 2px; }
+  :focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; border-radius: 4px; }
+  code {
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 0.86em;
+    background: #F1F4F8;
+    padding: 0.1em 0.4em;
+    border-radius: 5px;
+  }
+  .wrap { max-width: var(--wrap); margin: 0 auto; padding: 0 24px; }
+
+  /* top bar */
+  .top { padding: 18px 0; }
+  .top .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 850; text-decoration: none; color: var(--ink); }
+  .brand svg { flex: none; }
+  .top nav a { font-weight: 700; text-decoration: none; }
+  .top nav a:hover { text-decoration: underline; }
+
+  /* hero: the pegboard */
+  .hero {
+    background-color: #F8FAFC;
+    background-image: radial-gradient(circle, var(--peg) 1.7px, transparent 2px);
+    background-size: 20px 20px;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    padding: 64px 0 72px;
+  }
+  .hero .wrap {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 440px);
+    gap: 56px;
+    align-items: center;
+  }
+  h1 {
+    font-size: clamp(44px, 6.4vw, 76px);
+    line-height: 1.02;
+    font-weight: 950;
+    letter-spacing: -0.02em;
+    margin: 0;
+  }
+  .zh {
+    font-family: var(--cjk);
+    font-size: clamp(28px, 3.6vw, 40px);
+    font-weight: 600;
+    color: var(--raspberry);
+    letter-spacing: 0.04em;
+    margin: 14px 0 0;
+  }
+  .lede { font-size: 21px; line-height: 1.55; max-width: 34em; margin: 26px 0 30px; }
+  .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 22px; }
+  .btn {
+    display: inline-block;
+    background: var(--raspberry);
+    color: #fff;
+    font-weight: 850;
+    font-size: 19px;
+    text-decoration: none;
+    padding: 15px 26px;
+    border-radius: 999px;
+    box-shadow: inset 0 -4px 0 rgba(0, 0, 0, 0.18);
+  }
+  .btn:hover { background: #B02D66; }
+  .btn:active { box-shadow: inset 0 2px 0 rgba(0, 0, 0, 0.2); }
+  .actions a.plain { font-weight: 750; }
+  .fine { color: var(--muted); font-size: 15px; margin: 18px 0 0; }
+
+  /* before / after */
+  figure { margin: 0; }
+  .compare {
+    --pos: 50%;
+    position: relative;
+    aspect-ratio: 616 / 826;
+    border-radius: 14px;
+    overflow: hidden;
+    background: #E2E6EA;
+    box-shadow: 0 0 0 1px rgba(30, 51, 78, 0.12), 0 18px 40px -18px rgba(30, 51, 78, 0.45);
+    touch-action: pan-y;
+  }
+  .compare img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .compare .photo { clip-path: inset(0 calc(100% - var(--pos)) 0 0); }
+  .compare .handle {
+    position: absolute; top: 0; bottom: 0; left: var(--pos);
+    width: 3px; margin-left: -1.5px; background: #fff;
+    box-shadow: 0 0 0 1px rgba(30, 51, 78, 0.25);
+    pointer-events: none;
+  }
+  .compare .handle::after {
+    content: ""; position: absolute; top: 50%; left: 50%;
+    width: 34px; height: 34px; margin: -17px 0 0 -17px; border-radius: 50%;
+    background: radial-gradient(circle, transparent 0 7px, #fff 8px);
+    box-shadow: 0 2px 8px rgba(30, 51, 78, 0.35);
+  }
+  .compare input {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    margin: 0; opacity: 0; cursor: ew-resize;
+  }
+  .compare:has(input:focus-visible) .handle::after { outline: 3px solid var(--blue); outline-offset: 2px; }
+  .compare .tag {
+    position: absolute; top: 12px; font-size: 14px; font-weight: 800;
+    background: rgba(255, 255, 255, 0.9); color: var(--ink);
+    padding: 3px 10px; border-radius: 999px; pointer-events: none;
+  }
+  .compare .tag.left { left: 12px; }
+  .compare .tag.right { right: 12px; }
+  .hero figcaption { color: var(--muted); font-size: 15px; margin-top: 12px; }
+
+  /* sections */
+  section { padding: 80px 0 0; }
+  h2 { font-size: clamp(30px, 3.4vw, 40px); line-height: 1.15; font-weight: 900; letter-spacing: -0.01em; margin: 0 0 12px; }
+  .intro { max-width: 40em; color: var(--muted); margin: 0 0 36px; }
+  h3 { font-size: 21px; line-height: 1.3; font-weight: 850; margin: 0 0 6px; }
+
+  .fixes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 36px 56px; }
+  .fix { display: grid; grid-template-columns: 30px 1fr; gap: 0 14px; }
+  .fix p { margin: 0; }
+  .bead {
+    --c: var(--raspberry);
+    width: 26px; height: 26px; border-radius: 50%;
+    background: radial-gradient(circle, transparent 0 27%, var(--c) 30%);
+    box-shadow: inset -2px -3px 0 rgba(0, 0, 0, 0.13);
+    margin-top: 2px;
+  }
+
+  .shots { display: grid; gap: 44px; }
+  .shot img { border-radius: 10px; border: 1px solid var(--line); }
+  .shot figcaption { margin-top: 12px; font-weight: 700; }
+  .shot figcaption span { font-weight: 450; color: var(--muted); }
+
+  .prints { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.25fr); gap: 32px; align-items: start; }
+  .prints figure img { border: 1px solid var(--line); border-radius: 6px; }
+  .prints figcaption { font-size: 15px; color: var(--muted); margin-top: 10px; }
+  .prints figcaption strong { color: var(--ink); display: block; font-size: 17px; }
+  dl.files { margin: 0; }
+  dl.files dt { font-weight: 800; margin-top: 14px; }
+  dl.files dt:first-child { margin-top: 0; }
+  dl.files dd { margin: 2px 0 0; color: var(--muted); font-size: 16px; }
+
+  .brands { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 18px 36px; }
+  .brands li { display: grid; gap: 6px; }
+  .brands .name { font-weight: 800; }
+  .brands .name small { font-weight: 500; color: var(--muted); font-size: 15px; }
+  .row { display: flex; gap: 3px; }
+  .row i {
+    width: 16px; height: 16px; border-radius: 50%;
+    background: radial-gradient(circle, transparent 0 26%, var(--c) 30%);
+    box-shadow: inset -1px -2px 0 rgba(0, 0, 0, 0.12);
+  }
+  .own { margin-top: 30px; max-width: 42em; }
+
+  ol.steps { list-style: none; counter-reset: s; padding: 0; margin: 0; display: grid; gap: 26px; max-width: 46em; }
+  ol.steps li { counter-increment: s; display: grid; grid-template-columns: 46px 1fr; gap: 0 16px; }
+  ol.steps li::before {
+    content: counter(s);
+    width: 40px; height: 40px; border-radius: 50%;
+    display: grid; place-items: center;
+    font-weight: 900; font-size: 19px; color: #fff; background: var(--blue);
+    box-shadow: inset -2px -3px 0 rgba(0, 0, 0, 0.18);
+  }
+  ol.steps p { margin: 0; }
+  ol.steps h3 { margin-top: 6px; }
+
+  ul.tips { padding-left: 1.2em; max-width: 44em; margin: 0; }
+  ul.tips li { margin: 0 0 10px; }
+  ul.tips li::marker { color: var(--raspberry); }
+
+  footer { margin-top: 96px; padding: 40px 0 56px; border-top: 1px solid var(--line); color: var(--muted); font-size: 15px; }
+  footer p { margin: 0 0 10px; max-width: 60em; }
+  footer .made { color: var(--ink); font-weight: 750; font-size: 17px; }
+  footer .made span { font-family: var(--cjk); color: var(--raspberry); }
+
+  @media (max-width: 900px) {
+    .hero { padding: 40px 0 52px; }
+    .hero .wrap { grid-template-columns: 1fr; gap: 36px; }
+    .hero figure { max-width: 440px; }
+    .fixes { grid-template-columns: 1fr; gap: 28px; }
+    .prints { grid-template-columns: 1fr 1fr; }
+    .prints dl { grid-column: 1 / -1; }
+    section { padding-top: 64px; }
+  }
+  @media (max-width: 520px) {
+    .top .long { display: none; }
+    body { font-size: 17px; }
+    .lede { font-size: 19px; }
+    .prints { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="./">
+      <svg width="54" height="18" viewBox="0 0 54 18" aria-hidden="true">
+        <circle cx="9" cy="9" r="8" fill="#C53674"/><circle cx="9" cy="9" r="2.6" fill="#fff"/>
+        <circle cx="27" cy="9" r="8" fill="#0F52BD"/><circle cx="27" cy="9" r="2.6" fill="#fff"/>
+        <circle cx="45" cy="9" r="8" fill="#F7EC5C"/><circle cx="45" cy="9" r="2.6" fill="#fff"/>
+      </svg>
+      <span>Henry's Pindou Studio</span>
+    </a>
+    <nav><a href="https://github.com/HenryBao912/henrys-pindou-studio"><span class="long">Source on </span>GitHub</a></nav>
+  </div>
+</header>
+
+<main>
+  <div class="hero">
+    <div class="wrap">
+      <div>
+        <h1>Henry's Pindou Studio</h1>
+        <p class="zh" lang="zh-CN">给田田田的拼豆图纸</p>
+        <p class="lede">Turn a photo into a 拼豆 bead pattern you can actually build. It runs on your own computer, so private photos never get uploaded anywhere.</p>
+        <div class="actions">
+          <a class="btn" href="https://github.com/HenryBao912/henrys-pindou-studio/archive/refs/heads/main.zip">Download the app</a>
+          <a class="plain" href="#start">How to install</a>
+        </div>
+        <p class="fine">Free for Mac and Windows. Needs Python 3.9 or newer.</p>
+      </div>
+      <figure>
+        <div class="compare" id="compare">
+          <img class="beads" src="assets/hero-beads.jpg" width="616" height="826" alt="The cat's face as a fused-bead pattern, 44 beads wide">
+          <img class="photo" src="assets/hero-photo.jpg" width="616" height="826" alt="Photo of a tabby cat's face">
+          <span class="tag left">Photo</span>
+          <span class="tag right">Beads</span>
+          <div class="handle"></div>
+          <input type="range" min="0" max="100" value="50" step="0.5" aria-label="Slide between the photo and the bead pattern">
+        </div>
+        <figcaption>Drag to compare. 44 by 59 beads in 14 MARD colors, straight out of the app.</figcaption>
+      </figure>
+    </div>
+  </div>
+
+  <section id="faces">
+    <div class="wrap">
+      <h2>Made for faces</h2>
+      <p class="intro">Most photo converters resize blindly, which is why bead faces come out tilted, lopsided or missing their eyes. These are the fixes.</p>
+      <div class="fixes">
+        <div class="fix">
+          <div class="bead" style="--c:#C53674"></div>
+          <div><h3>Level the eyes in two clicks</h3>
+          <p>Click one eye, then the other. The photo rotates until they sit perfectly level, so the face stops coming out tilted.</p></div>
+        </div>
+        <div class="fix">
+          <div class="bead" style="--c:#0F52BD"></div>
+          <div><h3>Line the grid up with the eyes</h3>
+          <p>A bead grid sits over your photo. Nudge it until each eye lands inside one bead instead of splitting across two.</p></div>
+        </div>
+        <div class="fix">
+          <div class="bead" style="--c:#E8649E"></div>
+          <div><h3>Keep the small features</h3>
+          <p>Eyes, brows and lips are often thinner than a bead. Face details stops them from disappearing.</p></div>
+        </div>
+        <div class="fix">
+          <div class="bead" style="--c:#3977CA"></div>
+          <div><h3>See the size before you start</h3>
+          <p>Drag the width and watch the detail change. The app shows the finished size in cm and how many pegboards you need.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="app">
+    <div class="wrap">
+      <h2>Two tabs, start to finish</h2>
+      <p class="intro">Everything updates live while you adjust, and the right side keeps a running count of every color.</p>
+      <div class="shots">
+        <figure class="shot">
+          <img src="assets/app-photo-tab.png" width="1380" height="880" loading="lazy" alt="The photo tab: a cat photo with a bead grid and a red center line over the cropped area">
+          <figcaption>Photo, level and crop. <span>Crop the photo, level it, and line the bead grid up with the eyes.</span></figcaption>
+        </figure>
+        <figure class="shot">
+          <img src="assets/app-pattern-tab.png" width="1380" height="880" loading="lazy" alt="The pattern tab: the cat as round beads, with the list of colors used on the right">
+          <figcaption>Pattern and edit. <span>Check the beads, fix any by hand with mirrored painting, then export.</span></figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <section id="print">
+    <div class="wrap">
+      <h2>Print it, then build it</h2>
+      <p class="intro">One export gives you everything for the table. Export a photo called cat.jpg and you get these five files.</p>
+      <div class="prints">
+        <figure>
+          <img src="assets/print-true-size.png" width="935" height="1210" loading="lazy" alt="A true-size page with a 10 cm ruler above the bead grid">
+          <figcaption><strong>True size</strong>Print at 100%, check the 10 cm ruler, slide it under a clear pegboard and place beads right on top.</figcaption>
+        </figure>
+        <figure>
+          <img src="assets/print-chart.png" width="935" height="1210" loading="lazy" alt="A chart page with a color code printed in every bead cell">
+          <figcaption><strong>Chart</strong>One page per board with the color code in every cell. Large print and one-page versions too.</figcaption>
+        </figure>
+        <dl class="files">
+          <dt>cat_true_size.pdf</dt><dd>Exact bead spacing for a clear pegboard. 2.6 mm and 5 mm beads.</dd>
+          <dt>cat_chart.pdf</dt><dd>Overview, legend with bead counts, then a page per board.</dd>
+          <dt>cat_chart.png</dt><dd>The whole chart as one image for your phone or iPad.</dd>
+          <dt>cat_preview.png</dt><dd>What the finished piece will look like.</dd>
+          <dt>cat_colors.csv</dt><dd>Shopping list with about 10% spare per color.</dd>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <section id="beads">
+    <div class="wrap">
+      <h2>Your beads, your color codes</h2>
+      <p class="intro">Pick your brand and the pattern uses that brand's real color codes. Matching uses CIEDE2000, a formula built around how people perceive color difference.</p>
+      <ul class="brands">
+        <li><span class="name">MARD 221 <small>the most common in China</small></span><span class="row" aria-hidden="true"><i style="--c:#913635"></i><i style="--c:#874628"></i><i style="--c:#8B684C"></i><i style="--c:#FEDB99"></i><i style="--c:#F7EC5C"></i><i style="--c:#C8E87D"></i><i style="--c:#4E846D"></i><i style="--c:#44CDFB"></i><i style="--c:#768AE1"></i><i style="--c:#B34EC6"></i><i style="--c:#C53674"></i><i style="--c:#BE454A"></i></span></li>
+        <li><span class="name">MARD 291 <small>221 plus extended series</small></span><span class="row" aria-hidden="true"><i style="--c:#913635"></i><i style="--c:#98503A"></i><i style="--c:#B38561"></i><i style="--c:#FEC667"></i><i style="--c:#F9E045"></i><i style="--c:#C8E87D"></i><i style="--c:#4E846D"></i><i style="--c:#06ABE3"></i><i style="--c:#162C7E"></i><i style="--c:#9C34AD"></i><i style="--c:#C63674"></i><i style="--c:#BE454A"></i></span></li>
+        <li><span class="name">COCO 可可 <small>291 colors</small></span><span class="row" aria-hidden="true"><i style="--c:#B82D2D"></i><i style="--c:#FFAE82"></i><i style="--c:#A17140"></i><i style="--c:#F0D393"></i><i style="--c:#F8ED33"></i><i style="--c:#CBE38A"></i><i style="--c:#1EBA93"></i><i style="--c:#78CEE7"></i><i style="--c:#7DA1C8"></i><i style="--c:#74458A"></i><i style="--c:#F26697"></i><i style="--c:#FC9798"></i></span></li>
+        <li><span class="name">漫漫 Manman <small>278 colors</small></span><span class="row" aria-hidden="true"><i style="--c:#913635"></i><i style="--c:#E89B7D"></i><i style="--c:#8B684C"></i><i style="--c:#F3A014"></i><i style="--c:#F0D83A"></i><i style="--c:#C8E87D"></i><i style="--c:#63CEA2"></i><i style="--c:#06ABE3"></i><i style="--c:#3653AF"></i><i style="--c:#B34EC6"></i><i style="--c:#C63674"></i><i style="--c:#FEA2A3"></i></span></li>
+        <li><span class="name">盼盼 Panpan <small>285 colors</small></span><span class="row" aria-hidden="true"><i style="--c:#913635"></i><i style="--c:#874628"></i><i style="--c:#8B684C"></i><i style="--c:#FEDB99"></i><i style="--c:#ECDB59"></i><i style="--c:#92AD60"></i><i style="--c:#26B78E"></i><i style="--c:#9EE0F8"></i><i style="--c:#162C7E"></i><i style="--c:#882893"></i><i style="--c:#E58EAE"></i><i style="--c:#FEA2A3"></i></span></li>
+        <li><span class="name">咪小窝 Mixiaowo <small>286 colors</small></span><span class="row" aria-hidden="true"><i style="--c:#913635"></i><i style="--c:#874628"></i><i style="--c:#8B684C"></i><i style="--c:#FEDB99"></i><i style="--c:#ECDB59"></i><i style="--c:#ACE84C"></i><i style="--c:#26B78E"></i><i style="--c:#9EE0F8"></i><i style="--c:#162C7E"></i><i style="--c:#882893"></i><i style="--c:#E58EAE"></i><i style="--c:#FEA2A3"></i></span></li>
+        <li><span class="name">优肯 Artkal C <small>2.6 mm, 197 colors</small></span><span class="row" aria-hidden="true"><i style="--c:#FF6D6A"></i><i style="--c:#C58B68"></i><i style="--c:#FFC27B"></i><i style="--c:#C0B561"></i><i style="--c:#37C400"></i><i style="--c:#007367"></i><i style="--c:#007096"></i><i style="--c:#147BD1"></i><i style="--c:#3448AA"></i><i style="--c:#AD1AAC"></i><i style="--c:#F67599"></i><i style="--c:#FF585D"></i></span></li>
+        <li><span class="name">优肯 Artkal M <small>MARD-compatible, 221 colors</small></span><span class="row" aria-hidden="true"><i style="--c:#C64239"></i><i style="--c:#AC745B"></i><i style="--c:#FF8837"></i><i style="--c:#FFA80C"></i><i style="--c:#FFDF58"></i><i style="--c:#65DF4F"></i><i style="--c:#00AAAD"></i><i style="--c:#0588CC"></i><i style="--c:#1E3175"></i><i style="--c:#B850B2"></i><i style="--c:#FFA0C3"></i><i style="--c:#C74651"></i></span></li>
+        <li><span class="name">Artkal S <small>5 mm, 199 colors</small></span><span class="row" aria-hidden="true"><i style="--c:#CB3531"></i><i style="--c:#EB6027"></i><i style="--c:#CC9B74"></i><i style="--c:#E8AE00"></i><i style="--c:#A59F65"></i><i style="--c:#0D7535"></i><i style="--c:#0093A9"></i><i style="--c:#2EABD8"></i><i style="--c:#6B9AD4"></i><i style="--c:#644FA4"></i><i style="--c:#E182B0"></i><i style="--c:#99323A"></i></span></li>
+        <li><span class="name">Perler <small>5 mm, 103 colors</small></span><span class="row" aria-hidden="true"><i style="--c:#D14337"></i><i style="--c:#7E5446"></i><i style="--c:#DA9964"></i><i style="--c:#F6D901"></i><i style="--c:#7F971A"></i><i style="--c:#007B4E"></i><i style="--c:#0090AC"></i><i style="--c:#0E5092"></i><i style="--c:#503B9C"></i><i style="--c:#D45496"></i><i style="--c:#843947"></i><i style="--c:#DD595B"></i></span></li>
+        <li><span class="name">Perler Mini <small>41 colors</small></span><span class="row" aria-hidden="true"><i style="--c:#EB7B31"></i><i style="--c:#DA9964"></i><i style="--c:#E7CE3E"></i><i style="--c:#BBC938"></i><i style="--c:#007B4E"></i><i style="--c:#009188"></i><i style="--c:#278CC9"></i><i style="--c:#0E5092"></i><i style="--c:#A75D9D"></i><i style="--c:#983864"></i><i style="--c:#843947"></i><i style="--c:#DD595B"></i></span></li>
+        <li><span class="name">Hama Midi <small>5 mm, 92 colors</small></span><span class="row" aria-hidden="true"><i style="--c:#F96160"></i><i style="--c:#D14803"></i><i style="--c:#B78C6D"></i><i style="--c:#D99350"></i><i style="--c:#E7E45A"></i><i style="--c:#687836"></i><i style="--c:#19CDA7"></i><i style="--c:#489AB9"></i><i style="--c:#6A87C1"></i><i style="--c:#712297"></i><i style="--c:#EA8AA5"></i><i style="--c:#9A2C31"></i></span></li>
+        <li><span class="name">Hama Mini <small>2.5 mm, 78 colors</small></span><span class="row" aria-hidden="true"><i style="--c:#F96160"></i><i style="--c:#D14803"></i><i style="--c:#8A5937"></i><i style="--c:#F0981E"></i><i style="--c:#E7E45A"></i><i style="--c:#6E975F"></i><i style="--c:#19CDA7"></i><i style="--c:#51AEE4"></i><i style="--c:#6A87C1"></i><i style="--c:#D67AD1"></i><i style="--c:#EA8AA5"></i><i style="--c:#9A2C31"></i></span></li>
+      </ul>
+      <p class="own">Already have a kit? Type the codes you own, like <code>A1 B3 H7</code>, and the pattern only uses those. Ran out of a color? Add it to the never-use list.</p>
+    </div>
+  </section>
+
+  <section id="start">
+    <div class="wrap">
+      <h2>Get started</h2>
+      <p class="intro">About five minutes the first time. After that it opens with a double-click and works offline.</p>
+      <ol class="steps">
+        <li><div><h3>Install Python</h3><p>Get Python 3.9 or newer from <a href="https://www.python.org/downloads/">python.org</a>. On Windows, tick "Add python.exe to PATH" in the installer.</p></div></li>
+        <li><div><h3>Download and unzip</h3><p><a href="https://github.com/HenryBao912/henrys-pindou-studio/archive/refs/heads/main.zip">Download the app</a> and unzip it anywhere, for example your Documents folder.</p></div></li>
+        <li><div><h3>Double-click to open</h3><p>Mac: <code>run_mac.command</code> (the first time, right-click it and choose Open). Windows: <code>run_windows.bat</code>. The first launch installs three small libraries.</p></div></li>
+      </ol>
+    </div>
+  </section>
+
+  <section id="tips">
+    <div class="wrap">
+      <h2>Tips for a good pattern</h2>
+      <ul class="tips">
+        <li>Pick one clear subject on a plain background. Busy photos turn into noise.</li>
+        <li>Crop tight. Everything outside the crop costs beads and detail.</li>
+        <li>40 to 60 beads wide is where faces start to read. Mini 2.6 mm beads give about twice the detail of 5 mm.</li>
+        <li>8 to 20 colors is plenty, and each extra color is another bag to sort.</li>
+        <li>Fix the red circles before ironing. Beads that only touch at a corner can snap apart.</li>
+        <li>Screen colors are approximate, so hold your 色卡 next to the screen before you buy.</li>
+      </ul>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p class="made">Made by Henry for 田田田. <span lang="zh-CN">给田田田的拼豆图纸</span></p>
+    <p>Private by design: the app has no networking code, and this page loads no third-party scripts or fonts.</p>
+    <p>Bead colors come from the open datasets <a href="https://github.com/HansBug/pindou-color-data">pindou-color-data</a> and <a href="https://github.com/maxcleme/beadcolors">beadcolors</a>, packaged by <a href="https://github.com/HansBug/pypindou">pypindou</a>. Sample photo: Chelsea the cat from <a href="https://scikit-image.org/">scikit-image</a> (CC0). Typeface: Nunito (SIL Open Font License).</p>
+  </div>
+</footer>
+
+<script>
+  (function () {
+    var box = document.getElementById("compare");
+    if (!box) return;
+    var input = box.querySelector("input");
+    function set(v) { box.style.setProperty("--pos", v + "%"); }
+    input.addEventListener("input", function () { set(input.value); });
+    set(input.value);
+    var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduce) return;
+    // one reveal on load: sweep from mostly photo to the middle
+    var start = null, from = 92, to = 50, dur = 1100;
+    function step(t) {
+      if (start === null) start = t;
+      var k = Math.min(1, (t - start) / dur);
+      var e = 1 - Math.pow(1 - k, 3);
+      var v = from + (to - from) * e;
+      input.value = v; set(v);
+      if (k < 1) requestAnimationFrame(step);
+    }
+    var img = box.querySelector("img.beads");
+    function go() { setTimeout(function () { requestAnimationFrame(step); }, 350); }
+    if (img.complete) go(); else img.addEventListener("load", go);
+  })();
+</script>
+</body>
+</html>
